@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"> 
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" /> 
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script> 
+	<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="scripts/jquery.cookie.js"></script>
+	<link href="styles/960.css" rel="stylesheet" type="text/css" media="all"/> 
+	<link href="styles/main.css" rel="stylesheet" type="text/css" media="all"/> 
+	<title>Beach Movies</title> 
+	<script>
+	var movieList ={}
+	$(document).ready(function() {
+		$('#results').click(function (){
+			$('body').scrollTop(0);
+			newData();
+		});
+		
+		$('#vote').bind('click', function(){
+			$('body').scrollTop(0);
+			$('#loading').show();
+			var listLen = $('ol#sortable > li').length;
+			$('ol#sortable > li').each(function(e){
+				// var rank = (e+1)*-1
+				var rank = listLen - e
+				movieList[$(this).attr("id")] = rank;
+			})
+			//ajax stuff goes here
+			var sendData = $.param(movieList);
+			$.ajax({
+			  	url: "a.php",
+			  	data: sendData,
+		    	traditional:false,
+			  	success: function(message){
+					// console.log(message);
+					if(message == "no"){
+						$('#content').append('<h2>Looks like you already voted.</h2>');
+					}
+					newData();
+				}
+			});
+		});
+	});
+	
+	$(function() {
+		$( "#sortable" ).sortable({
+			revert: true
+		});
+		$( "#draggable" ).draggable({
+			connectToSortable: "#sortable",
+			helper: "clone",
+			revert: "invalid"
+		});
+		$( "ul, li" ).disableSelection();
+	});
+	
+function newData(){
+	$.getJSON('scripts/results.json', function(data) {
+		$('#content').append('<ol id="sortable2" class="mainList">');
+		$.each(data, function(key, val) {
+			$("#"+key).css('width', function(index, value) {
+				return parseInt(value) + parseInt(val);
+			});
+			$('#sortable2').append($('#'+key));
+		});
+		$('#content').append('</ol>');
+		$('#sortable').empty();
+		$('#sortable').hide();
+		$('#vote').hide();
+		$('#question').html("The Results So Far");
+		$('#results').hide();
+		$('#subText').hide();
+		$('#loading').hide()
+	});
+}
+</script>
+</head> 
+  <body> 
+	<div id="page" class="container_16"> 
+		<div id="main" class="grid_12 alpha omgea"> 
+			<div id="content" class="grid_12">
+				<p id="overview">Put the movies in your preferred order. The higher the rank the more points the movie will receive. Two movies are in by default: Ghostbusters and Animal House. This list will determine the other movies we watch during our nightly movie screening. </p>
+				<span id="question">Rank the Movies: </span>
+				<span id="subText"><small>(click and drag to reorder)</small></span>
+				<ol id="sortable" class="mainList">
+					<li id="backtothefuture" class="ui-state-default"><a href="#">Back to the Future</a></li>
+					<li id="caddyshack" class="ui-state-default"><a href="#">Caddyshack</a></li>
+					<li id="crazypeople" class="ui-state-default"><a href="#">Crazy People</a></li>
+					<li id="diehard" class="ui-state-default"><a href="#">Die Hard</a></li>
+					<li id="gremlins" class="ui-state-default"><a href="#">Gremlins</a></li>
+					<li id="jaws2" class="ui-state-default"><a href="#">Jaws II</a></li>
+					<li id="muppets" class="ui-state-default"><a href="#">Muppet Movie (the)</a></li>
+					<li id="raiders" class="ui-state-default"><a href="#">Raiders of the Lost Ark</a></li>
+					<li id="spies" class="ui-state-default"><a href="#">Spies Like Us</a></li>
+					<li id="splash" class="ui-state-default"><a href="#">Splash</a></li>
+					<li id="somekind" class="ui-state-default"><a href="#">Some Kind of Wonderful</a></li>
+					<li id="tron" class="ui-state-default"><a href="#">Tron (original)</a></li>
+					<li id="vacation" class="ui-state-default"><a href="#">Vacation</a></li>
+					<li id="whatbob" class="ui-state-default"><a href="#">What About Bob</a></li>
+				</ol>
+				<div id="loading" style="display:none;"></div>
+				<button id="vote">Vote Now</button>
+				<button id="results">View Results</button>
+			</div><!-- content --> 
+		</div> <!-- main --> 
+	</div> <!--End of page div--> 
+  </body> 
+</html>
